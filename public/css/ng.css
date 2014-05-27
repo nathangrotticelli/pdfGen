@@ -58,7 +58,14 @@ font-weight: lighter;
 /*float: right;*/
 border-radius: 25px;
 padding-right: 0;
-
+	}
+	.headshots h2{
+		font-family: 'Josefin Slab', 'serif';
+		/*text-decoration: none !important;*/
+	}
+	.headshots a{
+		/*font-family: 'Josefin Slab', 'serif';*/
+		text-decoration: none !important;
 	}
 	.btn-lg{
 		margin-top: 5%;
