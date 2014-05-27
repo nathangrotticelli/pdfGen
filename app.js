@@ -31,6 +31,15 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
+app.get('/download/images/:fileName', function(req, res){
+  var file = 'public/images/'+req.params.fileName.toString();
+  // alert(file);
+  console.log(file);
+
+  // var locationID = req.params.locationID.toString();
+  res.download(file); // Set disposition and send it.
+  // res.redirect('/');
+});
 app.get('/', routes.index);
 app.get('/resume', routes.resume);
 app.get('/headshots', routes.headshots);
