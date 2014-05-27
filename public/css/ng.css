@@ -5,7 +5,7 @@ body{
 	background-image:url('../images/bwaybground.png');
 	background-repeat:no-repeat;
 background-position: center top;
-	font-family: 'Henny Penny', cursive;
+	/*font-family: 'Henny Penny', cursive;*/
 	z-index: 0;
 	/*height: 100%;*/
 }
