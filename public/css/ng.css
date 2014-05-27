@@ -393,13 +393,13 @@ a:hover{
 	text-align: center;
 	color: white;
 	/*vertical-align: text-bottom;*/
-	font-size: 18px;
+	font-size: 18px !important;
 	/*margin-top: 60%;*/
 	clear: both;
     position: relative;
     z-index: 10;
     height: 3em;
-    margin-top: -3em;
+    padding-top: 30px;
 	/*padding-bottom: 3%;*/
 	font-family: 'Josefin Slab', 'serif';
 }
@@ -733,10 +733,16 @@ border-radius: 25px;
 	float:left;
 	border-radius: 15px;
 }
+@media(max-width:1200px){
+	.footer4,.cw,.conBtn{
+		display: none;
+	}
+}
 @media(max-width:950px){
 	.footer7,.cW,.conBtn{
 		display:none;
 	}
+
 
 }
 @media(max-width:800px){
@@ -986,7 +992,7 @@ border-radius: 10px;
 	}
 
 	p{
-		font-size: 16px !important;
+		font-size: 20px !important;
 	}
 	.meetLena p{
 		margin-right: -60px;
@@ -1139,7 +1145,7 @@ height: 25px;
 		margin-left: 20px;
 	}
 .cP{
-		margin-top: 90%;
+		margin-top: 100%;
 		margin-left: 15%;
 	}
 	.contactPic{

@@ -39,6 +39,7 @@ app.get('/download/images/:fileName', function(req, res){
   // var locationID = req.params.locationID.toString();
   res.download(file); // Set disposition and send it.
   // res.redirect('/');
+  // res.redirect(/)
 });
 app.get('/', routes.index);
 app.get('/resume', routes.resume);
