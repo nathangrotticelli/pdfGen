@@ -733,7 +733,7 @@ border-radius: 25px;
 	float:left;
 	border-radius: 15px;
 }
-@media(max-width:1390px){
+@media(max-width:950px){
 	.footer7,.cW,.conBtn{
 		display:none;
 	}
