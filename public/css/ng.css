@@ -274,6 +274,11 @@ label{
 	 	font-family: 'Josefin Slab', 'serif';
 	 	padding-top: 0;
 }
+.cp2{
+		border: 10px solid black;
+		padding-left: 0;
+		padding-right:0;
+}
 .dL2{
 	/*text-align: center;*/
 	margin-left: 10%;
@@ -887,6 +892,8 @@ border-radius: 10px;
 		/*margin-top: 20px;*/
 		/*margin-left: 10%;*/
 		border-radius: 25%;
+
+
 	}
 
 	.navbar{
