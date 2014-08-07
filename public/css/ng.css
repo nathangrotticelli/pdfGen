@@ -13,7 +13,14 @@ background-position: center top;
 	font-size: 15px;
 	color:#CCC;
 	/*padding:5%;*/
-
+.thing1{
+	margin-left: 1%;
+	margin-top: 5%;
+	width: 25%;
+	border: 4px solid black;
+	padding: 0px!important;
+	/*float: right;*/
+}
 	h1{
 font-family: 'Open Sans Condensed', sans-serif;
 font-weight: lighter;
@@ -38,13 +45,17 @@ font-weight: lighter;
 		/*max-height: 25%;*/
 		left: 4%;
 		margin-bottom: 3.5%;
-		margin-top: 2%;
+		margin-top: 2.5%!important;
+		/*top: 5%;*/
 		height:400px;
 		width: 450px;
 	}
 		.cP3{
 		height:600px;
 		width: 400px
+	}
+	.cP{
+		top: -50px;
 	}
 #contactPic{
 		float:right;
@@ -298,7 +309,7 @@ a:hover{
 	font-family: 'Josefin Slab', 'serif';
 	margin-top: 53.5%;
 	/*height: 10%;*/
-	/*padding-top: 1%;*/
+	padding-top: 80%;
 	text-align: center;
   background-color: transparent;
   /*box-shadow: 3px 3px 3px 3px black;*/
@@ -506,13 +517,13 @@ color:black;
 		text-align: center;
 	}
 
-	.cP p{
+/*	.cP p{
 		font-family: 'Josefin Slab', 'serif';
 		color:white;
 		font-size: 30px;
 		padding-left: 3%;
 
-	}
+	}*/
 .showcase-content-container{
 	background-color: black;
 }
@@ -1489,6 +1500,7 @@ border-radius: 10px;
 		color:white;
 		font-size: 30px;
 		padding-left: 3%;
+		margin-top: 10%;
 
 	}
 	p{
