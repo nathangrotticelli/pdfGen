@@ -1,4 +1,65 @@
+//    <div class="footer2" >
+//       <div class="container conContainer">
+//         <br><br><br>
 
+//       <div class="contactForm col-xs-8 col-sm-8 col-md-12 col-lg-12">
+//         <div >
+//           <form class="form-horizontal"  action="/contactSend" method="post">
+//           <fieldset>
+//              <img src="images/cf1.jpg" class="contactPic img-responsive col-xs-4 col-sm-4 col-md-4 col-lg-4"/>
+//             <legend id="footer" class="text-center cM">Contact Me!</legend>
+//             <a href="#navTop" class="topBtn">(back to the top)</a>
+
+
+//             <!-- Name input-->
+//             <div class="form-group">
+//               <label class="col-md-2 control-label" for="name">Name</label>
+//               <div class="col-md-6 col-lg-6">
+//                 <input id="name" name="name" type="text" placeholder="Your name" class="form-control">
+//               </div>
+//             </div>
+
+
+//             <!-- Email input-->
+//             <div class="form-group">
+//               <label class="col-md-2 control-label" for="email">Your E-mail</label>
+//               <div class="col-md-6 col-lg-6">
+//                 <input id="email" name="email" type="text" placeholder="Your email" class="form-control">
+//               </div>
+//             </div>
+
+
+//             <!-- Message body -->
+//             <div class="form-group">
+//               <label class="col-md-2 control-label" for="message">Your Message</label>
+//               <div class="col-md-6 col-lg-6">
+//                 <textarea class="form-control" id="message" name="message" placeholder="Please enter your message here..." rows="5"></textarea>
+//               </div>
+//             </div>
+// <!-- <p>@LG copywright</p> -->
+//             <!-- Form actions -->
+//             <div class="form-group">
+//               <div class="col-md-6 col-lg-6 submit">
+//                 <button type="submit" class="btn btn-lg">Submit</button>
+//               </div>
+//             </div>
+
+//           </fieldset>
+//           </form>
+//         </div>
+
+
+
+//    <!--  -->
+
+//   </div>
+
+
+// </div>
+
+
+
+//     </div>
 /**
  * Module dependencies.
  */
@@ -46,6 +107,7 @@ app.get('/resume', routes.resume);
 app.get('/headshots', routes.headshots);
 app.get('/photos', routes.photos);
 app.get('/videos', routes.videos);
+app.get('/contact', routes.contact);
 app.post('/contactSend', function(req,res){
   // create reusable transport method (opens pool of SMTP connections)
 var smtpTransport = nodemailer.createTransport("SMTP",{
