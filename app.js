@@ -70,9 +70,11 @@ var express = require('express')
   , PDFDocument = require('pdfkit')
   , moment = require('moment')
   , sizeOf = require('image-size')
-  , fs = require('fs')
-  , swig = require('swig')
   , request = require('request')
+  , async = require('async')
+  , fs = require('fs')
+  , Q = require('q')
+  , swig = require('swig')
   , user = require('./routes/user')
   , http = require('http')
   , path = require('path')
@@ -159,124 +161,247 @@ var fakeP = {
 };
 
 
-
-
-
-
-
-
-
-
 //pdf creation function
 var makePDF = function(object){
-  //function to pull images to local storage
-  var currentBannerFromURL = function(imageLink){
-    if(imageLink.indexOf('https:')>-1){
-      var location = imageLink.replace('https://','').replace(/\//g,'-');
-    }
-    else{
-      var location = imageLink.replace('http://','').replace(/\//g,'-');
-    }
-    var fileName = 'a_' + location;
 
-    var request = http.get(imageLink, function(res){
-      var imagedata = '';
-      res.setEncoding('binary');
-      res.on('data', function(chunk){
-        imagedata += chunk
-      });
-      res.on('end', function(){
-        var fileName = 'a_' + location;
-        fs.exists(fileName, function (exists) {
-          if(exists){
-            // console.log('exists');
-          }
-          else{
-            console.log('doesnt exist,saving image locally');
-            fs.writeFile(fileName,imagedata,'binary',function(err){
-              if (err){
-                //how should i throw this error?
-                throw err
-              }
-              else{
-                // console.log('File saved.')
-              }
-            });
-          }
-        });
-      });
-    });
-  };
-  //function to create an array of sorted service dates with no duplicates
-  var dateArrayFunc = function(){
-    var date_sort_asc = function (date1, date2) {
-      if (new Date(date1).getTime() > new Date(date2).getTime()) return 1;
-      if (new Date(date1).getTime() < new Date(date2).getTime()) return -1;
-      return 0;
-    };
-    var datesArray = [];
-    for(q=0;q<object.services.length;q++){
-      var a = object.services[q].service_date.replace(/\s/g, '');
-      var b = moment(a).format("MMMM DD, YYYY");
-      if(datesArray.indexOf(b)==-1){
-        datesArray.push(b);
+  var imagetoPDF = function(url){
+    var deferred = Q.defer();
+    request({url: url, encoding: null}, function(error, response, body){
+      if(!error && response.statusCode == 200){
+      // doc.image(body);
+        deferred.resolve(error, 'done');
       }
-    }
-    return datesArray.sort(date_sort_asc);
-  };
-  //start of whats run in pdfMake function
-  datesArray = dateArrayFunc();
-  doc = new PDFDocument();
-  doc.pipe(fs.createWriteStream('output.pdf'));
-  doc.save()
-  .font('Bitter-Regular.ttf')
-  .fontSize(25)
-  .image("abgBanner.png",0,0,{width: 612})
-  .fontSize(11)
-  .text(moment().format("MMMM DD, YYYY"),460,153,{lineBreak:false})
-  .text('Dear '+object.name+',',50, 165)
-  .moveDown(.6)
-  .text(object.message,65)
-  .moveDown(.8)
-  .text(object.agent,50)
-  .moveDown(.9)
-  .fontSize(16)
-  .fillColor("#2980b9")
-  .text('Itinerary - '+object.group_name,{align:'center'})
-  for(m=0;m<datesArray.length;m++){
+    });
+    return deferred.promise;
+  }
+
+  var headerMessage = function(doc){
+    doc.font('Bitter-Regular.ttf')
+    .fontSize(25)
+    .image("abgBanner.png",0,0,{width: 612})
+    .fontSize(11)
+    .text(moment().format("MMMM DD, YYYY"),460,153,{lineBreak:false})
+    .text('Dear '+object.name+',',50, 165)
+    .moveDown(.6)
+    .text(object.message,65)
+    .moveDown(.8)
+    .text(object.agent,50)
+    .moveDown(.9)
+    .fontSize(16)
+    .fillColor("#2980b9")
+    .text('Itinerary - '+object.group_name,{align:'center'});
+  }
+
+  var dateHeader = function(doc,serviceDate){
     doc.moveDown(.7)
     .fontSize(16)
     .fillColor("#3498db")
-    .text(datesArray[m],50);
-    for(x=0;x<object.services.length;x++){
-      if(new Date(object.services[x].service_date.replace(/\s/g, '')).getDate() == new Date(datesArray[m]).getDate()){
-        currentBannerFromURL(object.services[x].banner);
-        doc.fontSize(12)
-        .fillColor("black")
-        .moveDown(.75)
-        .font('Bitter-Bold.ttf')
-        .text(object.services[x].name,  82)
-        .font('Bitter-Regular.ttf')
-        .moveUp()
-        .fontSize(11)
-        .text('Price per person: USD '+object.services[x].price_person, {align:"right"})
-        .moveDown(.45)
-        .text(object.services[x].description,82)
-        .moveDown(.8)
-        //generate banner image for service
-        if(object.services[x].banner.indexOf('https:')>-1){
-          var fileName = 'a_'+object.services[x].banner.replace('https://','').replace(/\//g,'-');
-        }
-        else{
-          var fileName = 'a_'+object.services[x].banner.replace('http://','').replace(/\//g,'-');
-        }
-        var a4 = (doc.page.width - sizeOf(fileName).width);
-        doc.image(fileName,a4/2);
-      }
-    }
+    .text(serviceDate, 50);
   }
+
+  var serviceBody = function(doc,service){
+    doc.fontSize(12)
+    .fillColor("black")
+    .moveDown(.75)
+    .font('Bitter-Bold.ttf')
+    .text(service.name,  82)
+    .font('Bitter-Regular.ttf')
+    .moveUp()
+    .fontSize(11)
+    .text('Price per person: USD '+service.price_person, {align:"right"})
+    .moveDown(.45)
+    .text(service.description,82)
+    .moveDown(.8)
+  }
+
+  doc = new PDFDocument();
+  doc.pipe(fs.createWriteStream('output.pdf'));
+  doc.save();
+  headerMessage(doc);
+
+  var services = object.services;
+  var sortedServices = services.sort(function(service1,service2) {
+    date1 = (new Date(service1.service_date)).setHours(0,0,0,0);
+    date2 = (new Date(service2.service_date)).setHours(0,0,0,0);
+    return date1 > date2;
+  });
+
+  services.forEach(function(service, index){
+    if(index == 0){
+      var a = service.service_date.replace(/\s/g, '');
+      var b = moment(a).format("MMMM DD, YYYY");
+      // console.log(b);
+      dateHeader(doc,b);
+      serviceBody(doc,service);
+      //print out the first date header
+      // console.log(service.service_date);
+      //print out the rest of the service
+      // console.log('simulate rest of the service ', index);
+      //if there is an image call the function to print a single image
+      if(service.banner.length>0){
+      // console.log('herereer');
+        imagetoPDF(service.banner, function(err,data){
+        // var a4 = (doc.page.width - sizeOf(fileName).width);
+          console.log(data);
+        // console.log('data!!!!!!!!!!!');
+        });
+      };
+    }
+    else{
+      //compare the dates
+      var cA = service.service_date.replace(/\s/g, '');
+      var currentDate = moment(cA).format("MMMM DD, YYYY");
+      var pB = services[index-1].service_date.replace(/\s/g, '');
+      var previousDate = moment(pB).format("MMMM DD, YYYY");
+      // var currentDate = (new Date(service.service_date)).setHours(0,0,0,0); //formating and removing the time
+      // var previousDate = (new Date(services[index-1].service_date)).setHours(0,0,0);
+
+      if(currentDate == previousDate){
+        //do not print the header again so just leave this empty
+      }
+      else{
+        dateHeader(doc,currentDate);
+        //print the new header using service.service_date
+        // console.log(service.service_date);
+      }
+      serviceBody(doc,service);
+      //print out the rest of the header
+      // console.log('simulate rest of the service again', index);
+      //if there is an image call the function again.
+      if(service.banner.length>0){
+        imagetoPDF(service.banner, function(err,data){
+          console.log(data);
+        // console.log(data);
+        // doc.image(data,);
+        });
+      };
+    }
+  });
+  //call doc.end here.
+  console.log('doc end here');
   doc.end();
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //function to pull images to local storage
+  // var currentBannerFromURL = function(imageLink){
+  //   if(imageLink.indexOf('https:')>-1){
+  //     var location = imageLink.replace('https://','').replace(/\//g,'-');
+  //   }
+  //   else{
+  //     var location = imageLink.replace('http://','').replace(/\//g,'-');
+  //   }
+  //   var fileName = 'a_' + location;
+  //   var request = http.get(imageLink, function(res){
+  //     var imagedata = '';
+  //     res.setEncoding('binary');
+  //     res.on('data', function(chunk){
+  //       imagedata += chunk
+  //     });
+  //     res.on('end', function(){
+  //       var fileName = 'a_' + location;
+  //       fs.exists(fileName, function (exists) {
+  //         if(exists){
+  //           // console.log('exists');
+  //         }
+  //         else{
+  //           console.log('doesnt exist,saving image locally');
+  //           fs.writeFile(fileName,imagedata,'binary',function(err){
+  //             if (err){
+  //               //how should i throw this error?
+  //               throw err
+  //             }
+  //             else{
+  //               // console.log('File saved.')
+  //             }
+  //           });
+  //         }
+  //       });
+  //     });
+  //   });
+  // };
+  //function to create an array of sorted service dates with no duplicates
+  // var dateArrayFunc = function(){
+  //   var date_sort_asc = function (date1, date2) {
+  //     if (new Date(date1).getTime() > new Date(date2).getTime()) return 1;
+  //     if (new Date(date1).getTime() < new Date(date2).getTime()) return -1;
+  //     return 0;
+  //   };
+  //   var datesArray = [];
+  //   for(q=0;q<object.services.length;q++){
+  //     var a = object.services[q].service_date.replace(/\s/g, '');
+  //     var b = moment(a).format("MMMM DD, YYYY");
+  //     if(datesArray.indexOf(b)==-1){
+  //       datesArray.push(b);
+  //     }
+  //   }
+  //   return datesArray.sort(date_sort_asc);
+  // };
+  // //start of whats run in pdfMake function
+  // datesArray = dateArrayFunc();
+
+
+
+
+
+
+//   for(m=0;m<datesArray.length;m++){
+// //date headrr
+//     for(x=0;x<object.services.length;x++){
+//       if(new Date(object.services[x].service_date.replace(/\s/g, '')).getDate() == new Date(datesArray[m]).getDate()){
+//         // currentBannerFromURL(object.services[x].banner);
+
+//         //generate banner image for service
+//         // if(object.services[x].banner.indexOf('https:')>-1){
+//         //   var fileName = 'a_'+object.services[x].banner.replace('https://','').replace(/\//g,'-');
+//         // }
+//         // else{
+//         //   var fileName = 'a_'+object.services[x].banner.replace('http://','').replace(/\//g,'-');
+//         // }
+
+//         // var a4 = (doc.page.width - sizeOf(fileName).width);
+//         // doc.image(fileName,a4/2);
+//       }
+//     }
+//   }
+  // doc.end();
+
 makePDF(fakeP);
 
 
